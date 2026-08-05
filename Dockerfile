@@ -20,12 +20,14 @@ ARG SIMGEM_REPO=https://github.com/fmartinezlopez/SimGEM.git
 
 # ---- system + Garfield/ROOT runtime deps ----
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential cmake git wget ca-certificates gnupg \
+        build-essential cmake git wget ca-certificates gnupg curl \
         gfortran python3 python3-pip \
         libgsl-dev libx11-dev libxpm-dev libxft-dev libxext-dev \
         libssl-dev libtbb-dev libomp-dev \
+        libvdt-dev libgif-dev libtiff-dev libgl1-mesa-dev \
         software-properties-common \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && git config --global http.sslverify false
 
 # ---- Elmer (CSC PPA) ----
 RUN add-apt-repository -y ppa:elmer-csc-ubuntu/elmer-csc-ppa \
@@ -46,9 +48,10 @@ ENV GMSH_ROOT=/opt/gmsh
 
 # ---- Garfield++ (build against ROOT) ----
 RUN source ${ROOTSYS}/bin/thisroot.sh \
-    && git clone https://github.com/garfieldpp/garfieldpp.git \
-    && cd garfieldpp && mkdir build && cd build \
-    && cmake -DCMAKE_INSTALL_PREFIX=/opt/garfieldpp/install -DWITH_EXAMPLES=OFF .. \
+    && git clone --depth 1 https://gitlab.cern.ch/garfield/garfieldpp.git \
+    && cd garfieldpp && sed -i 's/add_subdirectory(Examples)/# add_subdirectory(Examples)/g' CMakeLists.txt \
+    && rm -rf build && mkdir build && cd build \
+    && cmake -DCMAKE_INSTALL_PREFIX=/opt/garfieldpp/install -DCMAKE_BUILD_TYPE=Release .. \
     && make -j"$(nproc)" && make install
 ENV GARFIELD_INSTALL=/opt/garfieldpp/install
 ENV HEED_DATABASE=/opt/garfieldpp/install/share/Heed/database
@@ -62,7 +65,7 @@ RUN source ${ROOTSYS}/bin/thisroot.sh \
 
 # ---- runtime environment ----
 ENV PATH=${ROOTSYS}/bin:${GMSH_ROOT}/bin:${GARFIELD_INSTALL}/bin:/opt/SimGEM/build:${PATH}
-ENV LD_LIBRARY_PATH=${ROOTSYS}/lib:${GMSH_ROOT}/lib:${GARFIELD_INSTALL}/lib:${GARFIELD_INSTALL}/lib64:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH=${ROOTSYS}/lib:${GMSH_ROOT}/lib:${GARFIELD_INSTALL}/lib:${GARFIELD_INSTALL}/lib64:${LD_LIBRARY_PATH:-/lib:/usr/lib}
 
 WORKDIR /work
 CMD ["/bin/bash"]
