@@ -26,6 +26,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libssl-dev libtbb-dev libomp-dev \
         libvdt-dev libgif-dev libtiff-dev libgl1-mesa-dev \
         libglu1-mesa \
+        libxcursor1 \
+        libxfixes3 \
+        libxinerama1 \
         software-properties-common \
     && rm -rf /var/lib/apt/lists/* \
     && git config --global http.sslverify false
