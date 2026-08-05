@@ -1,0 +1,47 @@
+{
+  "gas": {
+    "ar_fraction": 98.0,
+    "ch4_fraction": 2.0,
+    "pressure_bar": 8.0,
+    "temperature_K": 293.15,
+    "penning_r": 0.18,
+    "gas_file": "gas/ar98_ch4_2_8bar.gas"
+  },
+  "geometry": {
+    "pitch_um": 140.0,
+    "kapton_thickness_um": 50.0,
+    "hole_outer_diameter_um": 70.0,
+    "hole_inner_diameter_um": 50.0,
+    "kapton_permittivity": 3.5
+  },
+  "stack": {
+    "drift_gap_modeled_mm": 1.0,
+    "transfer_gap_1_mm": 2.1,
+    "transfer_gap_2_mm": 2.1,
+    "induction_gap_mm": 2.1
+  },
+  "fields": {
+    "drift_field_kVcm": 0.278,
+    "transfer_1_field_kVcm": 2.857,
+    "transfer_2_field_kVcm": 2.381,
+    "induction_field_kVcm": 3.619,
+    "dV_gem_top_V": 550.0,
+    "dV_gem_mid_V": 550.0,
+    "dV_gem_bot_V": 550.0
+  },
+  "mesh": {
+    "lc_fine_um": 6.0,
+    "lc_coarse_um": 60.0
+  },
+  "avalanche": {
+    "num_events": 1000,
+    "avalanche_size_limit": 500000
+  },
+  "misalignment": {
+    "mode": "random",
+    "sigma_um": 20.0,
+    "n_configs": 50,
+    "events_per_config": 100,
+    "seed": 12345
+  }
+}
