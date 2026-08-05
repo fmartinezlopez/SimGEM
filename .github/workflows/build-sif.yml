@@ -1,0 +1,20 @@
+name: Build Apptainer SIF
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: eWaterCycle/setup-apptainer@v2
+
+    - name: Build SIF
+      run: apptainer build simgem.sif docker://pacoemeele/simgem:latest
+
+    - name: Upload SIF
+      uses: actions/upload-artifact@v4
+      with:
+        name: simgem.sif
+        path: simgem.sif
