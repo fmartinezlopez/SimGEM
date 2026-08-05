@@ -16,7 +16,7 @@ SHELL ["/bin/bash", "-c"]
 ARG DEBIAN_FRONTEND=noninteractive
 ARG ROOT_TGZ=root_v6.40.02.Linux-ubuntu24.04-x86_64-gcc13.3.tar.gz
 ARG GMSH_TGZ=gmsh-4.15.2-Linux64-sdk.tgz
-ARG SIMGEM_REPO=https://github.com/YOURUSER/SimGEM.git
+ARG SIMGEM_REPO=https://github.com/fmartinezlopez/SimGEM.git
 
 # ---- system + Garfield/ROOT runtime deps ----
 RUN apt-get update && apt-get install -y --no-install-recommends \
