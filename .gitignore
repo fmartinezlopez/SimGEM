@@ -1,3 +1,15 @@
+# build products
 build/
+build-*/
+__pycache__/
+*.pyc
+
+# simulation outputs and caches (regenerated on demand)
 runs/
-__pycache__
+fields/
+gas/*.gas
+gas/penning/*.log
+gas/penning/.*.json
+
+# OS / editor
+.DS_Store

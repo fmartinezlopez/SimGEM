@@ -1,0 +1,81 @@
+{
+  "description": "Ar:CO2 50:50 at 1 bar with 0.5 mm transfer gaps: cold enough and thin enough that ~10% of the hole-pattern memory survives a gap (see `gem.py transport`)",
+  "gas": {
+    "components": {
+      "ar": 50.0,
+      "co2": 50.0
+    },
+    "pressure_bar": 1.01325,
+    "temperature_K": 293.15,
+    "penning": {
+      "r": "auto"
+    }
+  },
+  "foil": {
+    "pattern": "hex",
+    "pitch_um": 140.0,
+    "kapton_thickness_um": 50.0,
+    "copper_thickness_um": 5.0,
+    "kapton_permittivity": 3.5,
+    "hole": {
+      "profile": "double_conical",
+      "outer_diameter_um": 70.0,
+      "inner_diameter_um": 50.0
+    }
+  },
+  "foils": [
+    {
+      "name": "gem1",
+      "dV_V": 440.0
+    },
+    {
+      "name": "gem2",
+      "dV_V": 440.0
+    },
+    {
+      "name": "gem3",
+      "dV_V": 440.0
+    }
+  ],
+  "gaps": [
+    {
+      "name": "drift",
+      "thickness_mm": 1.0,
+      "field_kV_cm": 2.0
+    },
+    {
+      "name": "transfer1",
+      "thickness_mm": 0.5,
+      "field_kV_cm": 3.0
+    },
+    {
+      "name": "transfer2",
+      "thickness_mm": 0.5,
+      "field_kV_cm": 3.0
+    },
+    {
+      "name": "induction",
+      "thickness_mm": 1.0,
+      "field_kV_cm": 3.5
+    }
+  ],
+  "mesh": {
+    "fine_um": 6.0,
+    "coarse_um": 60.0
+  },
+  "simulation": {
+    "events": 300,
+    "avalanche_size_limit": 500000,
+    "seed": 1
+  },
+  "misalignment_mc": {
+    "distribution": "uniform",
+    "foils": [
+      "gem2",
+      "gem3"
+    ],
+    "geometries": 20,
+    "events_per_geometry": 200,
+    "seed": 1
+  }
+}

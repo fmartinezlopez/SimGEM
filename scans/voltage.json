@@ -1,0 +1,10 @@
+{
+  "description": "Gain curve: the same voltage on every foil",
+  "base": "../configs/baseline.json",
+  "axes": [
+    {"name": "dV", "path": "foils[*].dV_V", "range": {"start": 520, "stop": 620, "step": 20}}
+  ],
+  "set": {"simulation.avalanche_size_limit": 2000000},
+  "events": 500,
+  "analysis": {"polya": true}
+}

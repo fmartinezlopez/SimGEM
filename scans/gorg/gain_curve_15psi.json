@@ -1,0 +1,27 @@
+{
+  "description": "GORG gain curve, Ar:CH4 92:8 at 15 psi (1.0342 bar abs.); measured: V_GEM 2500-2850 V in 50 V steps, gains 187-2.8e3 (8 good runs). Simulated at measured voltages; V_drift = V_GEM + 500 V.",
+  "base": "../../configs/gorg.json",
+  "set": {
+    "gas.pressure_bar": 1.034214
+  },
+  "axes": [
+    {
+      "name": "V_gem",
+      "path": "hv.V_gem",
+      "values": [
+        2500,
+        2550,
+        2600,
+        2650,
+        2700,
+        2750,
+        2800,
+        2850
+      ]
+    }
+  ],
+  "events": 200,
+  "analysis": {
+    "polya": true
+  }
+}

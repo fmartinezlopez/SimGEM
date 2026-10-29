@@ -1,0 +1,21 @@
+{
+  "description": "Bachmann et al., NIM A 438 (1999) 376: standard single GEM in Ar:CO2 70:30 at 1 atm, effective gain from the signal current (no pulser)",
+  "notes": [
+    "Standard GEM: pitch 140 um (hex), metal holes 70 um, kapton holes 55 um at the centre (Bachmann Fig. 6: D = 70, d = 55), 50 um kapton, 5 um Cu.",
+    "Effective gain M = I_S / (e n R) from the PCB current, n ~ 220 for 6 keV X-rays; 'real gain' from all electrode currents.",
+    "Benchmarks read off the figures: Fig. 13 (dV = 500 V, E_D = 1, E_I = 3 kV/cm): effective ~350, real ~900; Fig. 24 GEM1 (E_D = 3, E_I = 4.4 kV/cm): ~75 at 400 V, ~210 at 450 V.",
+    "Penning: Garfield's Ar:CO2 parameterisation at 1 atm (Sahin et al. NIM A 768 (2014) 104), r = 0.57 for 30% CO2."
+  ],
+  "gas": {"components": {"ar": 70.0, "co2": 30.0}, "pressure_bar": 1.01325, "temperature_K": 293.15,
+          "penning": {"r": "auto"}},
+  "foil": {"pattern": "hex", "pitch_um": 140.0, "kapton_thickness_um": 50.0, "copper_thickness_um": 5.0,
+           "kapton_permittivity": 3.5,
+           "hole": {"profile": "double_conical", "outer_diameter_um": 70.0, "inner_diameter_um": 55.0}},
+  "foils": [{"name": "gem", "dV_V": 500.0}],
+  "gaps": [
+    {"name": "drift",     "thickness_mm": 1.0, "field_kV_cm": 1.0},
+    {"name": "induction", "thickness_mm": 1.0, "field_kV_cm": 3.0}
+  ],
+  "mesh": {"fine_um": 6.0, "coarse_um": 60.0},
+  "simulation": {"events": 200, "avalanche_size_limit": 2000000, "seed": 1}
+}

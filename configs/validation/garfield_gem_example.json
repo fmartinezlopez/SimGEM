@@ -1,0 +1,21 @@
+{
+  "description": "Garfield++ Examples/Gem reproduced in SimGEM: single standard GEM, Ar:CO2 80:20, 1 atm, dV = 300 V, for validation against the example's ANSYS field map",
+  "notes": [
+    "Geometry and potentials from Examples/Gem/Ansys/gem: pitch 140 um (hex), kapton 50 um (eps 4.0), metal 5 um, holes 70/50 um, rim 80 um; drift plane 1.0 mm and induction plane 1.0 mm from the kapton centre.",
+    "Example potentials: drift -200 V, top metal -150 V, bottom metal +150 V, induction +350 V; SimGEM puts the induction plane at 0 V (all shifted by -350 V, same fields).",
+    "Gas as in gem.C: Ar:CO2 80:20, 760 Torr, 293.15 K, Penning r = 0.51 on Ar."
+  ],
+  "gas": {"components": {"ar": 80.0, "co2": 20.0}, "pressure_bar": 1.01325, "temperature_K": 293.15,
+          "penning": {"r": 0.51, "gas": "ar"}},
+  "foil": {"pattern": "hex", "pitch_um": 140.0, "kapton_thickness_um": 50.0, "copper_thickness_um": 5.0,
+           "kapton_permittivity": 4.0,
+           "hole": {"profile": "double_conical", "outer_diameter_um": 70.0, "inner_diameter_um": 50.0,
+                    "copper_diameter_um": 80.0}},
+  "foils": [{"name": "gem", "dV_V": 300.0}],
+  "gaps": [
+    {"name": "drift",     "thickness_mm": 0.970, "field_kV_cm": 0.515464},
+    {"name": "induction", "thickness_mm": 0.970, "field_kV_cm": 2.061856}
+  ],
+  "mesh": {"fine_um": 6.0, "coarse_um": 60.0},
+  "simulation": {"events": 200, "avalanche_size_limit": 500000, "seed": 1}
+}

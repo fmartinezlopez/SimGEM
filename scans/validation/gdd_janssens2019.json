@@ -1,0 +1,9 @@
+{
+  "description": "SimGEM vs the CERN GDD single-GEM current-mode gains (D. Janssens, CERN summer student report 2019): CERN standard double-mask GEM (70/50 um holes), Ar:CO2 70:30, 1 atm, E_D = 2, E_I = 3 kV/cm, drift 3 mm, induction 2 mm (GEM2 of a triple used as anode). Measured G_eff = exp(0.02162 V - 4.503) after charging-up (x1.43 above the uncharged foil); their Garfield++ (ANSYS, r = 0.56) is 2.25 +- 0.26 below it.",
+  "base": "../../configs/validation/bachmann1999.json",
+  "set": {"foil.hole.inner_diameter_um": 50.0,
+          "gaps[0].thickness_mm": 3.0, "gaps[0].field_kV_cm": 2.0,
+          "gaps[1].thickness_mm": 2.0, "gaps[1].field_kV_cm": 3.0},
+  "axes": [{"name": "dV", "path": "foils[0].dV_V", "values": [350, 400, 450, 500]}],
+  "events": 200
+}

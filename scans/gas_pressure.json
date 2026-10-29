@@ -1,0 +1,19 @@
+{
+  "description": "CH4 fraction x pressure; gap fields scaled with pressure (constant reduced field)",
+  "base": "../configs/baseline.json",
+  "mode": "grid",
+  "axes": [
+    {"name": "ch4", "path": "gas.components",
+     "values": [{"ar": 98, "ch4": 2}, {"ar": 95, "ch4": 5}, {"ar": 90, "ch4": 10}],
+     "labels": ["2", "5", "10"]},
+    {"name": "p", "path": "gas.pressure_bar", "values": [4, 6, 8]}
+  ],
+  "derived": {
+    "gaps[0].field_kV_cm": "base('gaps[0].field_kV_cm') * p / 8",
+    "gaps[1].field_kV_cm": "base('gaps[1].field_kV_cm') * p / 8",
+    "gaps[2].field_kV_cm": "base('gaps[2].field_kV_cm') * p / 8",
+    "gaps[3].field_kV_cm": "base('gaps[3].field_kV_cm') * p / 8"
+  },
+  "points": [{"label": "nominal", "set": {}}],
+  "events": 300
+}

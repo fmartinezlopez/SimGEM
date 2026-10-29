@@ -1,0 +1,13 @@
+{
+  "description": "GORG gain curve, Ar:CO2 90:10 at 15.0 psi (1.0342 bar abs., 2025-08-19); measured: V_GEM 2500-2700 V, gains 602-1930 (5 good runs). Same pulser charge scale (aug2025) as the Ar:CH4 92:8 data, so this tests whether the SimGEM/GORG gap is in the gas model or in the common charge scale. V_drift = V_GEM + 500 V.",
+  "base": "../../configs/gorg.json",
+  "set": {
+    "gas.components": {"ar": 90.0, "co2": 10.0},
+    "gas.pressure_bar": 1.03421
+  },
+  "axes": [
+    {"name": "V_gem", "path": "hv.V_gem", "values": [2500, 2600, 2700]}
+  ],
+  "events": 200,
+  "analysis": {"polya": true}
+}

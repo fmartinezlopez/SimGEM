@@ -1,0 +1,15 @@
+{
+  "description": "Sensitivity of the simulated single-GEM effective gain at Bachmann Fig. 24 (450 V, E_D 3, E_I 4.4 kV/cm; measured ~210, simulated ~88)",
+  "base": "../../configs/validation/bachmann1999.json",
+  "set": {"foils[0].dV_V": 450, "gaps[0].field_kV_cm": 3.0, "gaps[1].field_kV_cm": 4.4},
+  "points": [
+    {"label": "nominal",        "set": {}},
+    {"label": "p0.96bar",       "set": {"gas.pressure_bar": 0.96}},
+    {"label": "inner50",        "set": {"foil.hole.inner_diameter_um": 50}},
+    {"label": "inner60",        "set": {"foil.hole.inner_diameter_um": 60}},
+    {"label": "outer75",        "set": {"foil.hole.outer_diameter_um": 75}},
+    {"label": "mesh_fine",      "set": {"mesh.fine_um": 3, "mesh.coarse_um": 30}},
+    {"label": "penning_r0.7",   "set": {"gas.penning.r": 0.7, "gas.penning.gas": "ar"}}
+  ],
+  "events": 200
+}

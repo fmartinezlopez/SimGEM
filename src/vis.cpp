@@ -1,6 +1,6 @@
-// vis_stack.cpp
+// vis.cpp
 // -----------------------------------------------------------------------------
-// Same physics as gain_stack.cpp (full triple-GEM stack, one Elmer field map),
+// Same physics as gain.cpp (the full stack, one Elmer field map),
 // but instead of only counting electrons it DUMPS THE TRAJECTORIES so they can
 // be plotted later. Three files per run:
 //
@@ -45,30 +45,24 @@
 //              track = -1 in the summary. Lower dt_max to trade these for
 //              fragments.
 //
-// Usage:
-//   ./vis_stack <outdir> <gasfile> <penning_r> <n_events>
-//               [seed] [tag] [max_tracks] [size_limit] [min_step_cm] [dt_max_ns]
-//   e.g.  ./vis_stack runs/baseline gas/ar98_ch4_2_8bar.gas 0.18 3
-//
-// As in gain_stack.cpp the z-range comes from the field map's bounding box, so
-// no geometry parameters are needed here.
+// Usage (normally launched by `gem.py vis`):
+//   simgem_vis --field fields/<hash> <gas options> --events 3 --seed 1000
+//              --z-start 0.7 --z-readout 0.001 --outdir runs/<cfg>
+//              [--tag ""] [--max-tracks 200] [--size-limit 2000]
+//              [--min-step 5e-4] [--dt-max 0.03]
 // -----------------------------------------------------------------------------
-#include <iostream>
-#include <string>
-#include <cstdlib>
+#include <array>
 #include <cmath>
 #include <fstream>
-#include <array>
+#include <iostream>
 #include <map>
 #include <vector>
 
-#include <Garfield/MediumMagboltz.hh>
-#include <Garfield/ComponentElmer.hh>
-#include <Garfield/Sensor.hh>
 #include <Garfield/AvalancheMicroscopic.hh>
-#include <Garfield/Random.hh>
-#include <Garfield/RandomEngineSTL.hh>
 #include <Garfield/FundamentalConstants.hh>
+#include <Garfield/Sensor.hh>
+
+#include "common.hh"
 
 using namespace Garfield;
 
@@ -134,90 +128,41 @@ void StepHandler(double x, double y, double z, double t, double e,
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  const std::string outdir = (argc > 1) ? argv[1] : "stack_run";
-  const std::string gasfile = (argc > 2) ? argv[2] : "ar98_ch4_2_8bar.gas";
-  const double rPenning = (argc > 3) ? std::atof(argv[3]) : 0.18;
-  const int nEvents = (argc > 4) ? std::atoi(argv[4]) : 1;
-  const unsigned int seed = (argc > 5) ? (unsigned int)std::strtoul(argv[5], nullptr, 10) : 0;
-  const std::string tag = (argc > 6) ? argv[6] : "";
-  const long maxTracks = (argc > 7) ? std::atol(argv[7]) : 200;
-  const size_t sizeLimit = (argc > 8) ? (size_t)std::strtoul(argv[8], nullptr, 10) : 2000;
-  const double minStep = (argc > 9) ? std::atof(argv[9]) : 5e-4;  // cm (5 um)
-  const double dtMax = (argc > 10) ? std::atof(argv[10]) : 0.03;  // ns
+  simgem::Args a(argc, argv);
+  const std::string outdir = a.Str("outdir");
+  const std::string tag = a.Str("tag", "");
+  const long nEvents = a.Int("events", 1);
+  const long maxTracks = a.Int("max-tracks", 200);
+  const long sizeLimit = a.Int("size-limit", 2000);
+  const double minStep = a.Num("min-step", 5e-4);  // cm
+  const double dtMax = a.Num("dt-max", 0.03);      // ns
+  const double zStart = a.Num("z-start");
+  const double zReadout = a.Num("z-readout");
+  const double e0 = a.Num("primary-energy", 0.1);
 
   RandomEngineSTL rng;
-  if (seed) {
-    rng.SetSeed(seed);
-    Random::SetEngine(rng);
-  }
-
-  // ---- gas -------------------------------------------------------------------
-  MediumMagboltz gas;
-  gas.LoadGasFile(gasfile);
-  if (rPenning < 0.) {
-    gas.EnablePenningTransfer();
-    std::cout << "Penning: built-in parameterization (a priori, from concentration+pressure)\n";
-  } else {
-    gas.EnablePenningTransfer(rPenning, 0., "ar");
-  }
-
-  // ---- field map -------------------------------------------------------------
-  ComponentElmer fm(outdir + "/stack/mesh.header",
-                    outdir + "/stack/mesh.elements",
-                    outdir + "/stack/mesh.nodes",
-                    outdir + "/dielectrics.dat",
-                    outdir + "/stack/case.result",
-                    "mm");
-
+  simgem::Seed(rng, a.Int("seed", 1000));
+  auto gas = simgem::MakeGas(a);
   double cxmin, cymin, czmin, cxmax, cymax, czmax;
-  fm.GetBoundingBox(cxmin, cymin, czmin, cxmax, cymax, czmax);
-
-  // See gain_stack.cpp: mirror (legacy aligned) vs translational (misaligned).
-  std::string pmode = "mirror";
-  {
-    std::ifstream pin(outdir + "/periodicity");
-    if (pin) std::getline(pin, pmode);
-    while (!pmode.empty() &&
-           (pmode.back() == '\n' || pmode.back() == '\r' || pmode.back() == ' '))
-      pmode.pop_back();
-  }
-  if (pmode == "translate") {
-    fm.EnablePeriodicityX();
-    fm.EnablePeriodicityY();
-    std::cout << "Periodicity: translational (misalignment-capable)\n";
-  } else {
-    fm.EnableMirrorPeriodicityX();
-    fm.EnableMirrorPeriodicityY();
-    std::cout << "Periodicity: mirror (aligned cell)\n";
-  }
-  fm.SetGas(&gas);
-  fm.PrintRange();
-
+  auto fm = simgem::LoadField(a.Str("field"), gas.get(), cxmin, cymin, czmin,
+                              cxmax, cymax, czmax);
+  fm->PrintRange();
   const double px = cxmax - cxmin;
   const double py = cymax - cymin;
-  const double dz = czmax - czmin;
-  const double zStart = czmax - 0.02 * dz;
-  const double zReadout = czmin + 0.01 * dz;
-  std::cout << "Cell (cm): x[" << cxmin << "," << cxmax << "] y[" << cymin
-            << "," << cymax << "] z[" << czmin << "," << czmax << "]\n"
-            << "Starting electrons at z = " << zStart
-            << ", counting those below z = " << zReadout << "\n"
-            << "Writing a point every " << minStep << " cm, full paths for up to "
-            << maxTracks << " electrons/event, avalanche size limit " << sizeLimit
-            << "\n";
+  std::cout << "Starting electrons at z = " << zStart << " cm, counting those below z = "
+            << zReadout << " cm\nWriting a point every " << minStep
+            << " cm, full paths for up to " << maxTracks
+            << " electrons/event, avalanche size limit " << sizeLimit << "\n";
 
-  Sensor sensor(&fm);
-  const double pad = 40.0;
-  sensor.SetArea(cxmin - pad * px, cymin - pad * py, czmin,
-                 cxmax + pad * px, cymax + pad * py, czmax);
-
+  Sensor sensor(fm.get());
+  sensor.SetArea(cxmin - 1000. * px, cymin - 1000. * py, czmin,
+                 cxmax + 1000. * px, cymax + 1000. * py, czmax);
   AvalancheMicroscopic aval(&sensor);
   aval.EnableAvalancheSizeLimit(sizeLimit);
   aval.EnablePathLengthComputation();
   aval.SetUserHandleStep(StepHandler);
   // NOTE: EnableDriftLines() stays off on purpose -- see the header comment.
 
-  // Geometry/meta for the plotting script.
   {
     std::ofstream meta(outdir + "/vis_meta" + tag + ".json");
     meta << "{\n"
@@ -228,7 +173,6 @@ int main(int argc, char* argv[]) {
          << "  \"z_start\": " << zStart << ",\n"
          << "  \"z_readout\": " << zReadout << ",\n"
          << "  \"n_events\": " << nEvents << ",\n"
-         << "  \"penning_r\": " << rPenning << ",\n"
          << "  \"max_tracks\": " << maxTracks << ",\n"
          << "  \"size_limit\": " << sizeLimit << ",\n"
          << "  \"min_step_cm\": " << minStep << ",\n"
@@ -241,8 +185,8 @@ int main(int argc, char* argv[]) {
   std::ofstream sum(outdir + "/vis_summary" + tag + ".csv");
   sum << "event,track,status,weight,path_length_cm,"
          "x0_cm,y0_cm,z0_cm,t0_ns,x1_cm,y1_cm,z1_cm,t1_ns,reached_readout\n";
-  trk.precision(6);
-  sum.precision(6);
+  trk.precision(7);
+  sum.precision(7);
 
   gTrk = &trk;
   gMaxTracks = maxTracks;
@@ -250,13 +194,13 @@ int main(int argc, char* argv[]) {
   gDtMax = dtMax;
 
   long nUnmatched = 0;
-  for (int i = 0; i < nEvents; ++i) {
+  for (long i = 0; i < nEvents; ++i) {
     gEvent = i;
     ResetTracking();
 
     const double x0 = cxmin + px * RndmUniform();
     const double y0 = cymin + py * RndmUniform();
-    aval.AvalancheElectron(x0, y0, zStart, 0., 0.1, 0., 0., 0.);
+    aval.AvalancheElectron(x0, y0, zStart, 0., e0, 0., 0., 0.);
 
     int ne = 0, ni = 0;
     aval.GetAvalancheSize(ne, ni);
@@ -294,11 +238,6 @@ int main(int argc, char* argv[]) {
       std::cout << "  [" << nFragments << " fragments, " << nMissed << " merged]";
     }
     std::cout << std::endl;
-
-    // progress file, same convention as gain_stack
-    std::ofstream pf(outdir + "/.progress" + tag, std::ios::trunc);
-    pf << (i + 1) << ' ' << nEvents << '\n';
-    pf.close();
   }
   trk.close();
   sum.close();
@@ -308,11 +247,7 @@ int main(int argc, char* argv[]) {
               << " preceding track (track = -1 in the summary). Lower dt_max ("
               << dtMax << " ns) to split more aggressively.\n";
   }
-  std::cout << "\n=================================================\n"
-            << "Trajectories: " << outdir << "/vis_tracks" << tag << ".csv"
-            << "  (" << gTotalWritten << " points)\n"
-            << "Per-track:    " << outdir << "/vis_summary" << tag << ".csv\n"
-            << "Geometry:     " << outdir << "/vis_meta" << tag << ".json\n"
-            << "=================================================\n";
+  std::cout << "Trajectories: " << outdir << "/vis_tracks" << tag << ".csv"
+            << "  (" << gTotalWritten << " points)\n";
   return 0;
 }

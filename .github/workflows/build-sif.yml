@@ -1,20 +1,80 @@
-name: Build Apptainer SIF
+# Build the SimGEM container from the Dockerfile for a tag, test it, push it to
+# ghcr.io/<owner>/simgem:<tag> and attach an Apptainer SIF as a workflow artifact.
+# Runs when a tag v* is pushed, or by hand (Actions -> Build container -> Run
+# workflow) for any tag or branch.
+name: Build container
 
-on: [push]
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: SimGEM tag or branch to package
+        required: true
+        default: main
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 240
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref || github.ref }}
+
+    - name: Resolve names
+      id: names
+      run: |
+        ref="${{ inputs.ref || github.ref_name }}"
+        echo "ref=$ref" >> "$GITHUB_OUTPUT"
+        echo "tag=${ref//\//-}" >> "$GITHUB_OUTPUT"
+        echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/simgem" >> "$GITHUB_OUTPUT"
+
+    # room for the build stage (compilers, sources) plus the SIF
+    - name: Free disk space
+      run: |
+        sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+        df -h /
+
+    - name: Build image
+      run: docker build --build-arg SIMGEM_REF="${{ steps.names.outputs.ref }}" -t simgem:ci .
+
+    - name: Smoke test
+      run: |
+        docker run --rm simgem:ci bash -ec '
+          cat /opt/SimGEM/VERSION
+          cd "$(mktemp -d)"
+          python3 -c "import gmsh"
+          command -v ElmerGrid ElmerSolver
+          simgem check /opt/SimGEM/configs/baseline.json
+          # mesh + Elmer solve + field-map validation + a few Garfield++ avalanches
+          simgem run /opt/SimGEM/configs/validation/garfield_gem_example.json --events 4 --jobs 2'
+
+    - name: Push to GitHub Container Registry
+      run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+        img="${{ steps.names.outputs.image }}"
+        docker tag simgem:ci "$img:${{ steps.names.outputs.tag }}"
+        docker push "$img:${{ steps.names.outputs.tag }}"
+        if [ "${{ github.ref_type }}" = tag ]; then
+          docker tag simgem:ci "$img:latest"
+          docker push "$img:latest"
+        fi
 
     - uses: eWaterCycle/setup-apptainer@v2
 
     - name: Build SIF
-      run: apptainer build simgem.sif docker://pacoemeele/simgem:latest
+      run: apptainer build "simgem-${{ steps.names.outputs.tag }}.sif" docker-daemon://simgem:ci
 
     - name: Upload SIF
       uses: actions/upload-artifact@v4
       with:
-        name: simgem.sif
-        path: simgem.sif
+        name: simgem-${{ steps.names.outputs.tag }}.sif
+        path: simgem-${{ steps.names.outputs.tag }}.sif
+        compression-level: 0
+        retention-days: 30

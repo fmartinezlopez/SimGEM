@@ -1,0 +1,10 @@
+{
+  "description": "Hole inner diameter (all foils) x transfer-gap thickness (both transfer gaps)",
+  "base": "../configs/baseline.json",
+  "axes": [
+    {"name": "d_in", "path": "foil.hole.inner_diameter_um", "values": [45, 50, 55, 60]},
+    {"name": "transfer", "set": {"gaps[1].thickness_mm": [1.0, 2.1], "gaps[2].thickness_mm": [1.0, 2.1]},
+     "labels": ["1.0mm", "2.1mm"]}
+  ],
+  "events": 400
+}

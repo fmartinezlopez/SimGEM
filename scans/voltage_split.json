@@ -1,0 +1,11 @@
+{
+  "description": "Redistribute voltage between GEM1 and GEM3 at constant total (paired values: mode zip)",
+  "base": "../configs/baseline.json",
+  "mode": "zip",
+  "axes": [
+    {"name": "split", "set": {"foils[0].dV_V": [590, 570, 550, 530, 510],
+                              "foils[2].dV_V": [510, 530, 550, 570, 590]},
+     "labels": ["+40", "+20", "0", "-20", "-40"]}
+  ],
+  "events": 500
+}

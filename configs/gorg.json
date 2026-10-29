@@ -1,0 +1,87 @@
+{
+  "description": "GORG: TECHTRA (TTA) standard triple GEM, Ar:CH4 92:8 at 1 atm, powered by V_drift + V_GEM through the HV divider",
+  "notes": [
+    "Geometry from the setup: 18 mm drift (1 mm slice simulated, true drift field applied), 2.1 mm transfer gaps, 2.1 mm induction gap to the charge-sensitive readout.",
+    "Foil names follow the TECHTRA board: GEM3 is the TOP foil (next to the drift, at -V_GEM), GEM1 the bottom one (next to the readout).",
+    "HV as in the lab: V_GEM feeds the divider at GEM3_U, V_drift = V_GEM + 500 V (GORG catalog: V_drift - V_gem = 500 V in every run). Drift field = 500 V / 18 mm.",
+    "Divider: TECHTRA 'GEM HV Divider Separate Drift cover V1.0' (AGUILA/hardware/high_voltage/gem_divider.py, config techtra_v1): GEM3 R11-R15 5x110k, transfer32 R16-R20 5x200k, GEM2 R21-R25 5x100k (unprinted, fitted to the bench measurements), transfer21 R26-R30 5x200k, GEM1 R31-R34 4x84.5k + R35 102k, induction R36-R40 5x200k; 4.49 MOhm. Unloaded shares (the GEM electrodes draw no current): 12.25 / 22.27 / 11.14 / 22.27 / 9.80 / 22.27 %.",
+    "Foils: standard CERN GEM foils: 140 um hex pitch, 50 um kapton, 5 um Cu, double-conical holes 70/50 um.",
+    "GORG pressures are absolute psi (14.5 psi = ambient). This config is 1 atm; the gain-curve scans use the measured pressures.",
+    "Penning: Garfield's Ar:CH4 parameterisation (Sahin et al. 2010, pressure dependent): r = 0.21 at 1 bar, 0.23 at 4 bar for 8 % CH4.",
+    "Gas temperature 20 C (not recorded in the GORG logbook)."
+  ],
+  "gas": {
+    "components": {
+      "ar": 92.0,
+      "ch4": 8.0
+    },
+    "pressure_bar": 1.01325,
+    "temperature_K": 293.15,
+    "penning": {
+      "r": "auto"
+    }
+  },
+  "foil": {
+    "pattern": "hex",
+    "pitch_um": 140.0,
+    "kapton_thickness_um": 50.0,
+    "copper_thickness_um": 5.0,
+    "kapton_permittivity": 3.5,
+    "hole": {
+      "profile": "double_conical",
+      "outer_diameter_um": 70.0,
+      "inner_diameter_um": 50.0
+    }
+  },
+  "foils": [
+    {
+      "name": "gem3"
+    },
+    {
+      "name": "gem2"
+    },
+    {
+      "name": "gem1"
+    }
+  ],
+  "gaps": [
+    {
+      "name": "drift",
+      "thickness_mm": 1.0
+    },
+    {
+      "name": "transfer32",
+      "thickness_mm": 2.1
+    },
+    {
+      "name": "transfer21",
+      "thickness_mm": 2.1
+    },
+    {
+      "name": "induction",
+      "thickness_mm": 2.1
+    }
+  ],
+  "hv": {
+    "V_gem": 2600.0,
+    "V_drift_gap": 500.0,
+    "drift_length_mm": 18.0,
+    "divider_resistance_kohm": {
+      "gem3": 550.0,
+      "transfer32": 1000.0,
+      "gem2": 500.0,
+      "transfer21": 1000.0,
+      "gem1": 440.0,
+      "induction": 1000.0
+    }
+  },
+  "mesh": {
+    "fine_um": 6.0,
+    "coarse_um": 60.0
+  },
+  "simulation": {
+    "events": 500,
+    "avalanche_size_limit": 2000000,
+    "seed": 1
+  }
+}

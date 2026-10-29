@@ -1,0 +1,81 @@
+{
+  "description": "Misalignment MC: every foil shifted by an independent 20 um Gaussian",
+  "gas": {
+    "components": {
+      "ar": 98.0,
+      "ch4": 2.0
+    },
+    "pressure_bar": 8.0,
+    "temperature_K": 293.15,
+    "penning": {
+      "r": 0.18,
+      "lambda": 0.0,
+      "gas": "ar"
+    }
+  },
+  "foil": {
+    "pattern": "hex",
+    "pitch_um": 140.0,
+    "kapton_thickness_um": 50.0,
+    "copper_thickness_um": 5.0,
+    "kapton_permittivity": 3.5,
+    "hole": {
+      "profile": "double_conical",
+      "outer_diameter_um": 70.0,
+      "inner_diameter_um": 50.0
+    }
+  },
+  "foils": [
+    {
+      "name": "gem1",
+      "dV_V": 550.0
+    },
+    {
+      "name": "gem2",
+      "dV_V": 550.0
+    },
+    {
+      "name": "gem3",
+      "dV_V": 550.0
+    }
+  ],
+  "gaps": [
+    {
+      "name": "drift",
+      "thickness_mm": 1.0,
+      "field_kV_cm": 0.278
+    },
+    {
+      "name": "transfer1",
+      "thickness_mm": 2.1,
+      "field_kV_cm": 2.857
+    },
+    {
+      "name": "transfer2",
+      "thickness_mm": 2.1,
+      "field_kV_cm": 2.381
+    },
+    {
+      "name": "induction",
+      "thickness_mm": 2.1,
+      "field_kV_cm": 3.619
+    }
+  ],
+  "mesh": {
+    "fine_um": 6.0,
+    "coarse_um": 60.0
+  },
+  "simulation": {
+    "events": 1000,
+    "avalanche_size_limit": 500000,
+    "seed": 1
+  },
+  "misalignment_mc": {
+    "distribution": "gaussian",
+    "sigma_um": 20.0,
+    "foils": null,
+    "geometries": 20,
+    "events_per_geometry": 500,
+    "seed": 1
+  }
+}
